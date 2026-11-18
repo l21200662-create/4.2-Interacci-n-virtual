@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import {VRButton} from 'three/addons/webxr/VRButton.js';
 import {XRHandModelFactory} from 'three/addons/webxr/XRHandModelFactory.js';
 import {makeLab,CATEGORIES,PIECES,updateHud,formatTime} from './lab.js';
 
 const host=document.querySelector('#scene-host'),enter=document.querySelector('#enter-vr'),compat=document.querySelector('#compatibility'),webMessage=document.querySelector('#web-message');
-let renderer,scene,camera,lab,raycaster,world,drag=null,activeHand=null,session=null,lastTime=0,elapsed=0,started=false,finished=false,hover=null;
+let renderer,scene,camera,lab,raycaster,world,drag=null,activeHand=null,session=null,lastTime=0,elapsed=0,started=false,finished=false,hover=null,enteringXR=false;
 const fixed=1/60, pinchWasDown=new WeakMap();
 const state={count:0,attempts:0,errors:0,progress:Object.fromEntries(CATEGORIES.map(c=>[c.id,0])),finish:Object.fromEntries(CATEGORIES.map(c=>[c.id,null])),message:'Pulsa COMENZAR dentro del laboratorio',tone:'normal',hands:'Manos: buscando…'};
 try{init();}catch(error){reportError(error);}
@@ -14,10 +13,15 @@ function init(){
  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.xr.enabled=true;renderer.xr.setReferenceSpaceType('local-floor');host.appendChild(renderer.domElement);
  world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.82,0)});world.allowSleep=true;world.broadphase=new CANNON.SAPBroadphase(world);world.solver.iterations=8;world.defaultContactMaterial.friction=.55;world.defaultContactMaterial.restitution=.12;
  lab=makeLab(scene);buildStaticPhysics();spawnPieces();raycaster=new THREE.Raycaster();const handModels=new XRHandModelFactory();for(let i=0;i<2;i++){const hand=renderer.xr.getHand(i);hand.add(handModels.createHandModel(hand,'spheres'));scene.add(hand);hand.userData.side=i?'right':'left';}
- const vr=VRButton.createButton(renderer,{optionalFeatures:['hand-tracking']});vr.id='three-vr-button';vr.className='d-none';document.body.appendChild(vr);enter.disabled=false;enter.textContent='Entrar a VR';enter.addEventListener('click',()=>{webMessage.textContent='';vr.click();});
+ enter.disabled=false;enter.textContent='Entrar a VR';enter.addEventListener('click',enterVR);
  renderer.xr.addEventListener('sessionstart',()=>{session=renderer.xr.getSession();document.body.classList.add('in-vr');session.addEventListener('end',onSessionEnd,{once:true});refreshCompat();});renderer.xr.addEventListener('sessionend',onSessionEnd);
  renderer.domElement.addEventListener('pointerdown',desktopDown);window.addEventListener('pointermove',desktopMove);window.addEventListener('pointerup',desktopUp);window.addEventListener('resize',resize);resize();lastTime=performance.now();renderer.setAnimationLoop(animate);refreshCompat();updateHud(lab.hud,state);
 }
+async function enterVR(){if(enteringXR||renderer.xr.isPresenting)return;if(!navigator.xr){webMessage.textContent='Este navegador no ofrece WebXR. Abre el enlace HTTPS en Meta Quest Browser.';return;}enteringXR=true;enter.disabled=true;enter.textContent='Iniciando VR…';webMessage.textContent='';let requestedSession=null;try{
+ // local-floor is required because the room, tables and bodies use floor-height coordinates.
+ // Request it up front so an unsupported reference space fails visibly before immersion.
+ requestedSession=await navigator.xr.requestSession('immersive-vr',{requiredFeatures:['local-floor'],optionalFeatures:['hand-tracking']});await renderer.xr.setSession(requestedSession);
+ }catch(error){if(requestedSession&&requestedSession.active)requestedSession.end().catch(()=>{});console.error('No se pudo iniciar WebXR:',error);enter.disabled=false;enter.textContent='Intentar entrar a VR';webMessage.textContent=`No se pudo iniciar VR (${error?.name||'error'}). Comprueba Quest Browser, HTTPS y permisos, y vuelve a intentar.`;state.message='Inicio WebXR fallido · revisa la portada';state.tone='error';}finally{enteringXR=false;if(!renderer.xr.isPresenting&&enter.disabled){enter.disabled=false;enter.textContent='Entrar a VR';}}}
 function bodyBox(x,y,z,sx,sy,sz,material){const b=new CANNON.Body({mass:0,material});b.addShape(new CANNON.Box(new CANNON.Vec3(sx/2,sy/2,sz/2)));b.position.set(x,y,z);world.addBody(b);return b;}
 function buildStaticPhysics(){const m=new CANNON.Material('static');world.defaultContactMaterial.friction=.6;const floor=new CANNON.Body({mass:0,material:m});floor.addShape(new CANNON.Plane());floor.quaternion.setFromEuler(-Math.PI/2,0,0);floor.position.y=-.05;world.addBody(floor);
  for(const t of lab.tables){bodyBox(t.x,.72,t.z,1.45,.12,1.05,m);}
