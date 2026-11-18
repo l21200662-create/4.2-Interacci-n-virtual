@@ -38,7 +38,7 @@ Las piezas que caen al piso permanecen como cuerpos dinámicos agarrables. Reini
 
 ## GitHub Pages
 
-Sube el contenido de esta carpeta a la raíz de `main`; en GitHub configura **Settings → Pages → Deploy from a branch → main → /(root)**. Usa la URL HTTPS generada. Los imports, CSS y favicon usan rutas relativas para funcionar bajo una subruta de repositorio. Verifica en Network que documentos y módulos respondan 200, y en Console que el CDN no reporte CORS/import errors. La publicación y URL no se han ejecutado desde este espacio.
+El repositorio está publicado mediante **Settings → Pages → Deploy from a branch → main → /(root)**. URL HTTPS: [https://l21200662-create.github.io/4.2-Interacci-n-virtual/](https://l21200662-create.github.io/4.2-Interacci-n-virtual/). El sitio, CSS, favicon, módulos del proyecto y módulos CDN respondieron HTTP 200 al verificarlos; la escena 3D cargó en el navegador de escritorio integrado. La sesión WebXR no está disponible en ese navegador y necesita prueba en Meta Quest 3.
 
 ## Matriz de aceptación
 
@@ -63,12 +63,12 @@ Sube el contenido de esta carpeta a la raíz de `main`; en GitHub configura **Se
 | 15 | Métricas y fórmula | Completar botes a distintos tiempos; comparar intentos | Cuatro tiempos, global, errores y precisión correcta | Pendiente | Pendiente |
 | 16 | Detención del cronómetro | Completar pieza 20 | Tiempo global deja de avanzar | Pendiente | Pendiente |
 | 17 | Reinicio de puntuación y escena | Reiniciar partida terminada | Contadores a cero, escenario barajado | Pendiente | Pendiente |
-| 18 | Carga web sin errores críticos | Live Server, Console y Network | Módulos y física cargan sin errores | Pendiente | Pendiente |
-| 19 | Repositorio y Pages públicos | Abrir URLs en ventana sin sesión | GitHub y URL HTTPS accesibles | Pendiente | Pendiente |
+| 18 | Carga web sin errores críticos | Abrir Pages; comprobar módulos y consola | Módulos y física cargan sin errores | Parcial: rutas del sitio/CDN 200, escena visible, sin errores del sitio en consola; falta Live Server y prueba XR | [Sitio Pages](https://l21200662-create.github.io/4.2-Interacci-n-virtual/) |
+| 19 | Repositorio y Pages públicos | Abrir URLs públicas | GitHub y URL HTTPS accesibles | Verificado: repositorio y Pages públicos, HTTP 200 | [Repositorio](https://github.com/l21200662-create/4.2-Interacci-n-virtual) · [Pages](https://l21200662-create.github.io/4.2-Interacci-n-virtual/) |
 | 20 | Problemas reales y conclusiones del alumno | Escribir tras ejecutar en Quest | Dos incidentes con diagnóstico y conclusiones | Pendiente | Pendiente |
 
 ## Evidencias y pendientes del alumno
 
-- Repositorio: [github.com/l21200662-create/4.2-Interacci-n-virtual](https://github.com/l21200662-create/4.2-Interacci-n-virtual). Pages esperado al activar `main` + `/(root)`: `https://l21200662-create.github.io/4.2-Interacci-n-virtual/`; su publicación/acceso aún debe verificarse. Grabación Quest 3: pendiente.
+- Repositorio: [github.com/l21200662-create/4.2-Interacci-n-virtual](https://github.com/l21200662-create/4.2-Interacci-n-virtual). GitHub Pages: [sitio HTTPS publicado](https://l21200662-create.github.io/4.2-Interacci-n-virtual/), fuente `main` + `/(root)`. Grabación Quest 3: pendiente.
 - Capturas requeridas: disposición inicial, físicas/colisiones, acierto, error y marcador final. Documentar dos problemas reales, logs y conclusiones en la plataforma de entrega.
-- No se ha abierto el sitio en Quest 3 ni publicado a GitHub Pages; seguimiento real, ergonomía, rendimiento del visor y estabilidad de solver están pendientes de prueba. También deben probarse carga bajo la ruta pública del repositorio y que no haya solapes para todos los barajados. La forma de pirámide usa un box collider aproximado, y la geometría cilíndrica de cannon-es no reproduce exactamente la cara hexagonal.
+- El sitio ya está publicado; no se ha abierto en Quest 3. Seguimiento real, ergonomía, rendimiento del visor y estabilidad del solver están pendientes de prueba. También falta comprobar en el visor que no haya solapes para todos los barajados. La forma de pirámide usa un box collider aproximado, y la geometría cilíndrica de cannon-es no reproduce exactamente la cara hexagonal.
